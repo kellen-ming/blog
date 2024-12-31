@@ -11,17 +11,17 @@ export const siteConfig: SiteConfig = {
   subtitle: 'Demo Site',
   lang: 'zh_CN',         // 'en', 'zh_CN', 'zh_TW', 'ja', 'ko'
   themeColor: {
-    hue: 250,         // Default hue for the theme color, from 0 to 360. e.g. red: 0, teal: 200, cyan: 250, pink: 345
-    fixed: false,     // Hide the theme color picker for visitors
+    hue: 250,         // 主题颜色的默认色调，从 0 到 360。红色：0，青色：200，青色：250，粉色：345
+    fixed: false,     // 为访客隐藏主题颜色选择器
   },
   banner: {
     enable: true,
-    src: 'assets/images/banner.png',   // Relative to the /src directory. Relative to the /public directory if it starts with '/'
-    position: 'center',      // Equivalent to object-position, only supports 'top', 'center', 'bottom'. 'center' by default
+    src: 'assets/images/banner.png',   // 相对于/src 目录。如果以“/"开头，则相对于/pubLic目录
+    position: 'center',      // 相当于object-position，只支持'top'，'center'，'bottom'。默认为 'center' 
     credit: {
-      enable: false,         // Display the credit text of the banner image
-      text: '',              // Credit text to be displayed
-      url: ''                // (Optional) URL link to the original artwork or artist's page
+      enable: false,         // 显示横幅图像的信用文本
+      text: '',              // 示的信用文本
+      url: ''                // (可选)原始艺术作品或艺术家页面的URL链接
     }
   },
   toc: {
@@ -44,14 +44,14 @@ export const navBarConfig: NavBarConfig = {
     LinkPreset.About,
     {
       name: 'GitHub',
-      url: 'https://github.com/saicaca/fuwari',     // Internal links should not include the base path, as it is automatically added
-      external: true,                               // Show an external link icon and will open in a new tab
+      url: 'https://github.com/saicaca/fuwari',     // 内部链接不应包含基本路径，因为它是自动添加的
+      external: true,                               // 显示外部链接图标并将在新选项卡中打开
     },
   ],
 }
 
 export const profileConfig: ProfileConfig = {
-  avatar: 'assets/images/author.png',  // Relative to the /src directory. Relative to the /public directory if it starts with '/'
+  avatar: 'assets/images/author.png',  //相对于/src目录。如果以“/”开头，则相对于 /public 目录
   name: 'Kellen',
   bio: '慢慢来，比较快。',
   /**
@@ -66,14 +66,9 @@ export const profileConfig: ProfileConfig = {
       url: 'https://juejin.cn/user/1007587030991165',
     },
     {
-      name: 'Steam',
-      icon: 'fa6-brands:steam',
-      url: 'https://store.steampowered.com',
-    },
-    {
       name: 'GitHub',
       icon: 'fa6-brands:github',
-      url: 'https://github.com/saicaca/fuwari',
+      url: 'https://github.com/Kellen-liang',
     },
   ],
 }

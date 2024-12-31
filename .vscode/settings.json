@@ -21,5 +21,8 @@
   "frontMatter.dashboard.openOnStart": false,
   "cSpell.words": [
     "overlayscrollbars"
-  ]
+  ],
+  "[astro]": {
+    "editor.defaultFormatter": "astro-build.astro-vscode"
+  }
 }
