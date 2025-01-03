@@ -1,5 +1,5 @@
 ---
-title: React 19 新特性 - useOptimistic
+title: React 19 新特性 - useTransition、useActionState
 published: 2024-12-24
 description: 'react 19 新特性'
 image: ''
@@ -420,9 +420,8 @@ function OptimisticAction() {
         { text: response, adding: false },
       ]);
     } catch (err) {
-      // 如果请求失败，就还原todo state 的值，即还原optimisticTodos
+      // 如果请求失败，optimisticTodos会自动还原上一次操作的数据
       alert(`待办事件添加失败：${err}`);
-      setTodos((prevTodos) => [...prevTodos]);
     }
   };
 
