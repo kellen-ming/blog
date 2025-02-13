@@ -1,13 +1,16 @@
 ---
 title: typescript.json
 published: 2025-02-13
-description: ''
+description: 'typescript.json文件一些基础字段解释'
 image: ''
 tags: ['TypeScript']
 category: 'CI/CD'
 draft: false 
 lang: ''
 ---
+
+> - [相关手册1](https://www.tslang.cn/docs/handbook/tsconfig-json.html)
+> - [相关手册2](https://www.typescriptlang.org/docs/handbook/tsconfig-json.html)
 
 如果一个目录下存在一个tsconfig.json文件，那么它意味着这个目录是TypeScript项目的根目录。 tsconfig.json文件中指定了用来编译这个项目的根文件和编译选项。
 tsconfig.json文件可以是个空文件，那么所有默认的文件都会以默认配置选项编译。
