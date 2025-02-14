@@ -3,8 +3,8 @@ title: package.json_v11
 published: 2025-02-13
 description: 'NPM的package.json文件一些基础字段解释'
 image: ''
-tags: ['NPM']
-category: 'CI/CD'
+tags: ['npm']
+category: 'CICD'
 draft: false 
 lang: ''
 ---

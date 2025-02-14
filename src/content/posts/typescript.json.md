@@ -4,7 +4,7 @@ published: 2025-02-13
 description: 'typescript.json文件一些基础字段解释'
 image: ''
 tags: ['TypeScript']
-category: 'CI/CD'
+category: 'CICD'
 draft: false 
 lang: ''
 ---
