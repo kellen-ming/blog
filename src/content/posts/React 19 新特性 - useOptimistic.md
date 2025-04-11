@@ -4,7 +4,7 @@ published: 2024-12-24
 description: 'react 19 新特性'
 image: ''
 tags: ['react hooks']
-category: 'react'
+category: 'React'
 draft: false 
 ---
 

@@ -4,7 +4,7 @@ published: 2023-06-06
 description: ''
 image: ''
 tags: [react-router]
-category: 'react'
+category: 'React'
 draft: false 
 lang: ''
 ---

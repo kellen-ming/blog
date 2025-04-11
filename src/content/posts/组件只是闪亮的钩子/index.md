@@ -4,7 +4,7 @@ published: 2025-03-28
 description: ''
 image: './images/useContext-hook.png'
 tags: ['react hooks']
-category: 'react'
+category: 'React'
 draft: false 
 lang: ''
 ---
