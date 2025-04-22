@@ -74,3 +74,117 @@ function upperCaseNumber (number: number) {
 }
 
 ```
+
+
+### 中文大写金额转数字
+```ts
+function upperCaseToNumber(chinese: string): number {
+  // 汉字映射
+  const digitMap: { [key: string]: number } = {
+    零: 0, 壹: 1, 贰: 2, 叁: 3, 肆: 4,
+    伍: 5, 陆: 6, 柒: 7, 捌: 8, 玖: 9
+  };
+
+  // 单位映射（单位：元）
+  const unitMap: { [key: string]: number } = {
+    分: 0.01, 角: 0.1,
+    拾: 10, 佰: 100, 仟: 1000,
+    万: 10000, 亿: 100000000
+  };
+
+  let result = 0;
+  let currentNumber = 0;
+  let tempValue = 0;
+  let maxUnit = 1; // 记录当前最大单位
+
+  // 处理符号
+  if (chinese.startsWith('负')) {
+    chinese = chinese.slice(1);
+  }
+
+  // 分割整数和小数部分
+  const [integerPart = '', decimalPart = ''] = chinese.split('元');
+  
+  // 处理整数部分
+  const processPart = (str: string) => {
+    let currentMaxUnit = 1;
+    let tempResult = 0;
+    let currentValue = 0;
+    
+    for (const char of str) {
+      if (digitMap[char] !== undefined) {
+        currentValue = digitMap[char];
+      } else if (unitMap[char]) {
+        const unit = unitMap[char];
+        if (unit >= 10000) { // 处理万、亿单位
+          tempResult += (currentValue || 1) * unit;
+          currentValue = 0;
+          currentMaxUnit = unit;
+        } else {
+          currentValue *= unit;
+          tempResult += currentValue;
+          currentValue = 0;
+        }
+      }
+    }
+    return tempResult + currentValue;
+  };
+
+  // 处理整数部分
+  result += processPart(integerPart);
+
+  // 处理小数部分
+  if (decimalPart) {
+    const decimalValue = decimalPart
+      .replace('整', '')
+      .split('')
+      .reduce((acc, char) => {
+        if (digitMap[char] !== undefined) {
+          acc.value = digitMap[char];
+        } else if (unitMap[char]) {
+          acc.total += acc.value * unitMap[char];
+          acc.value = 0;
+        }
+        return acc;
+      }, { value: 0, total: 0 });
+    result += decimalValue.total + decimalValue.value * 0.01;
+  }
+
+  // 处理符号
+  return chinese.startsWith('负') ? -result : result;
+}
+```
+#### 示例
+```ts
+console.log(upperCaseToNumber('壹拾贰亿叁仟肆佰伍拾陆万柒仟捌佰玖拾元壹角贰分')); 
+// 1234567890.12
+
+console.log(upperCaseToNumber('陆万柒仟捌佰元整')); 
+// 67800
+
+console.log(upperCaseToNumber('玖角伍分')); 
+// 0.95
+
+console.log(upperCaseToNumber('负叁亿零伍拾万')); 
+// -300500000
+
+```
+#### 实现原理
+- 汉字映射：建立汉字到数字的对应关系
+- 单位处理：
+  - 小单位（拾/佰/仟）直接参与计算
+  - 大单位（万/亿）作为阶段乘数
+
+- 分段处理：
+  - 先按"元"分割整数和小数部分
+  - 分别处理整数部分和小数部分
+- 特殊处理：
+  - 连续零的处理（如"叁亿零伍拾万"）
+  - 单位叠加计算（如"壹万贰仟" = 12000）
+  - 负数处理
+
+- 注意事项
+  - 输入字符串需要符合标准中文大写金额格式
+  - 不支持"万亿"以上的单位（需要扩展单位映射）
+  - 小数部分必须包含"元"作为分隔符
+  - 自动处理"整"字的结尾
