@@ -1,59 +1,46 @@
-# 🍥Fuwari
+## 我的博客
 
-基于 [Astro](https://astro.build) 开发的静态博客模板。
+此仓库为我的个人博客源码，基于 [Astro](https://astro.build) 构建，由 🍥Fuwari 模板生成。
 
-[**🖥️在线预览（Vercel）**](https://fuwari.vercel.app)&nbsp;&nbsp;&nbsp;/&nbsp;&nbsp;&nbsp;
-[**📦旧 Hexo 版本**](https://github.com/saicaca/hexo-theme-vivia)
+- 模板仓库：[`saicaca/fuwari`](https://github.com/saicaca/fuwari)
+- 模板演示：`https://fuwari.vercel.app`
 
-> README 版本：`2024-09-10`
+### 本地开发
 
-![Preview Image](https://raw.githubusercontent.com/saicaca/resource/main/fuwari/home.png)
+在项目根目录执行：
 
-## ✨ 功能特性
+- 如未安装 [pnpm](https://pnpm.io)，先运行：`npm install -g pnpm`
+- 安装依赖：`pnpm install`，以及图片处理库：`pnpm add sharp`
+- 启动开发服务器：`pnpm dev`（默认 `http://localhost:4321`）
 
-- [x] 基于 Astro 和 Tailwind CSS 开发
-- [x] 流畅的动画和页面过渡
-- [x] 亮色 / 暗色模式
-- [x] 自定义主题色和横幅图片
-- [x] 响应式设计
-- [ ] 评论
-- [x] 搜索
-- [ ] 文内目录
+### 写作与内容
 
-## 🚀 使用方法
-
-1. 使用此模板[生成新仓库](https://github.com/saicaca/fuwari/generate)或 Fork 此仓库
-2. 进行本地开发，Clone 新的仓库，执行 `pnpm install` 和 `pnpm add sharp` 以安装依赖  
-   - 若未安装 [pnpm](https://pnpm.io)，执行 `npm install -g pnpm`
-3. 通过配置文件 `src/config.ts` 自定义博客
-4. 执行 `pnpm new-post <filename>` 创建新文章，并在 `src/content/posts/` 目录中编辑
-5. 参考[官方指南](https://docs.astro.build/zh-cn/guides/deploy/)将博客部署至 Vercel, Netlify, GitHub Pages 等；部署前需编辑 `astro.config.mjs` 中的站点设置。
-
-## ⚙️ 文章 Frontmatter
+- 新建文章：`pnpm new-post <filename>`（生成在 `src/content/posts/`）
+- 基本 Frontmatter 示例：
 
 ```yaml
 ---
-title: My First Blog Post
-published: 2023-09-09
-description: This is the first post of my new Astro blog.
+title: 文章标题
+published: 2024-01-01
+description: 简短描述
 image: ./cover.jpg
-tags: [Foo, Bar]
-category: Front-end
+tags: [Tag1, Tag2]
+category: Category
 draft: false
-lang: jp      # 仅当文章语言与 `config.ts` 中的网站语言不同时需要设置
 ---
 ```
 
-## 🧞 指令
+### 构建与预览
 
-下列指令均需要在项目根目录执行：
+- 构建：`pnpm build`（产物输出到 `./dist/`）
+- 预览：`pnpm preview`
 
-| Command                           | Action                            |
-|:----------------------------------|:----------------------------------|
-| `pnpm install` 并 `pnpm add sharp` | 安装依赖                              |
-| `pnpm dev`                        | 在 `localhost:4321` 启动本地开发服务器      |
-| `pnpm build`                      | 构建网站至 `./dist/`                   |
-| `pnpm preview`                    | 本地预览已构建的网站                        |
-| `pnpm new-post <filename>`        | 创建新文章                             |
-| `pnpm astro ...`                  | 执行 `astro add`, `astro check` 等指令 |
-| `pnpm astro --help`               | 显示 Astro CLI 帮助                   |
+### 部署
+
+可部署至 Vercel / Netlify / GitHub Pages 等。部署前请在 `astro.config.mjs` 设置正确的 `site`。
+
+### 致谢
+
+本项目使用 🍥Fuwari 模板生成，感谢模板作者 `@saicaca`。
+
+
