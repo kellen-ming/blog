@@ -1,8 +1,8 @@
 ---
 title: ReactDOM.preload
 published: 2025-12-16
-description: ''
-image: ''
+description: 'ReactDOM.preload 用于在组件渲染前预加载关键资源，优化首屏性能。本文介绍其参数配置和 10 个实用场景，涵盖字体、CSS、脚本、图片等资源的预加载策略。'
+image: './images/random-img.webp'
 tags: ['react api', '预加载']
 category: 'React'
 draft: false 
