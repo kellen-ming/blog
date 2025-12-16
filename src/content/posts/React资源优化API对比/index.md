@@ -1,7 +1,7 @@
 ---
 title: React资源优化API对比
 published: 2025-12-16
-description: '深入对比 React 提供的资源提示 API：preload、preloadModule、preinitModule、prefetch、prefetchDNS，帮你理解它们的区别、使用场景和最佳实践。'
+description: '深入对比 React 提供的资源提示 API：preload、preloadModule、preinitModule、preconnect、preinit、prefetchDNS，帮你理解它们的区别、使用场景和最佳实践。'
 image: './images/58mM9Ft3d8.webp'
 tags: ['react api', '性能优化', '资源加载']
 category: 'React'
@@ -17,13 +17,14 @@ React 提供了多个资源提示 API 来优化页面加载性能，但它们的
 
 ## React 资源提示 API 概览
 
-React 提供了以下 5 个资源提示 API：
+React 提供了以下 6 个资源提示 API：
 
 1. **ReactDOM.preload** - 预加载关键资源
 2. **ReactDOM.preloadModule** - 预加载 ESM 模块
 3. **ReactDOM.preinitModule** - 预加载并执行 ESM 模块
-4. **ReactDOM.prefetch** - 预取未来可能用到的资源
-5. **ReactDOM.prefetchDNS** - DNS 预解析
+4. **ReactDOM.preconnect** - 提前建立连接
+5. **ReactDOM.preinit** - 预加载并执行外部脚本或插入样式表
+6. **ReactDOM.prefetchDNS** - DNS 预解析
 
 ## 核心区别对比
 
@@ -34,19 +35,20 @@ React 提供了以下 5 个资源提示 API：
 | `preload` | 🔴 高 | 所有资源类型 | 立即下载 |
 | `preloadModule` | 🔴 高 | ESM 模块 | 立即下载 |
 | `preinitModule` | 🔴 高 | ESM 模块 | 立即下载+执行 |
-| `prefetch` | 🟡 低 | 所有资源类型 | 空闲时下载 |
+| `preconnect` | 🔴 高 | 连接 | 提前建立连接 |
+| `preinit` | 🔴 高 | 脚本/样式 | 立即下载+执行 |
 | `prefetchDNS` | - | DNS 解析 | 提前解析域名 |
 
 ### 详细对比表
 
-| 特性 | preload | preloadModule | preinitModule | prefetch | prefetchDNS |
-|------|---------|---------------|---------------|----------|-------------|
-| **用途** | 预加载关键资源 | 预加载 ESM 模块 | 预加载+执行模块 | 预取未来资源 | DNS 预解析 |
-| **优先级** | 高 | 高 | 高 | 低 | - |
-| **资源类型** | 字体、CSS、脚本、图片等 | 仅 ESM 模块 | 仅 ESM 模块 | 所有类型 | 域名 |
-| **执行时机** | 立即下载 | 立即下载 | 立即下载+执行 | 空闲时下载 | 提前解析 |
-| **适用场景** | 首屏必需资源 | ES 模块预加载 | 需要立即执行的模块 | 可能用到的资源 | 第三方域名 |
-| **HTML 等价** | `<link rel="preload">` | `<link rel="modulepreload">` | `<link rel="modulepreload">` + 执行 | `<link rel="prefetch">` | `<link rel="dns-prefetch">` |
+| 特性 | preload | preloadModule | preinitModule | preconnect | preinit | prefetchDNS |
+|------|---------|---------------|---------------|-----------|--------|-------------|
+| **用途** | 预加载关键资源 | 预加载 ESM 模块 | 预加载+执行模块 | 提前建立连接 | 预加载+执行脚本/样式 | DNS 预解析 |
+| **优先级** | 高 | 高 | 高 | 高 | 高 | - |
+| **资源类型** | 字体、CSS、脚本、图片等 | 仅 ESM 模块 | 仅 ESM 模块 | 连接 | 脚本/样式 | 域名 |
+| **执行时机** | 立即下载 | 立即下载 | 立即下载+执行 | 提前建立连接 | 立即下载+执行 | 提前解析 |
+| **适用场景** | 首屏必需资源 | ES 模块预加载 | 需要立即执行的模块 | 第三方资源连接 | 需要立即执行的脚本/样式 | 第三方域名 |
+| **HTML 等价** | `<link rel="preload">` | `<link rel="modulepreload">` | `<link rel="modulepreload">` + 执行 | `<link rel="preconnect">` | `<link rel="preinit">` | `<link rel="dns-prefetch">` |
 
 ## 各 API 详解
 
@@ -79,7 +81,7 @@ ReactDOM.preload('/critical.css', {
 - ✅ 首屏必需的字体文件
 - ✅ 关键 CSS 样式
 - ✅ 首屏图片（LCP 元素）
-- ❌ 未来可能用到的资源（用 prefetch）
+- ❌ 未来可能用到的资源（浏览器会自动处理）
 
 ---
 
@@ -133,34 +135,61 @@ ReactDOM.preinitModule('/polyfill-module.js', {
 
 ---
 
-### 4. ReactDOM.prefetch
+### 4. ReactDOM.preconnect
 
-**用途：** 预取**未来可能用到**的资源（低优先级）
+**用途：** 提前建立与服务器的连接
 
 **特点：**
-- 低优先级，浏览器空闲时下载
-- 不阻塞关键资源加载
-- 适用于可能访问的页面资源
+- 提前建立 TCP 连接、TLS 握手
+- 减少后续请求的延迟
+- 适用于第三方资源
 
 **使用示例：**
 ```jsx
-// 预取下一个路由的资源
-ReactDOM.prefetch('/next-page.css', {
-  as: 'style'
-});
-
-ReactDOM.prefetch('/next-page.js', {
-  as: 'script'
+// 提前建立与第三方 CDN 的连接
+ReactDOM.preconnect('https://fonts.googleapis.com');
+ReactDOM.preconnect('https://cdn.jsdelivr.net', {
+  crossOrigin: 'anonymous'
 });
 ```
 **何时使用：**
-- ✅ 用户可能访问的下一个页面资源
-- ✅ 非关键的图片、脚本
-- ❌ 当前页面必需的资源（用 preload）
+- ✅ 即将从第三方域名加载资源
+- ✅ CDN 资源
+- ✅ 第三方 API 调用
 
 ---
 
-### 5. ReactDOM.prefetchDNS
+### 5. ReactDOM.preinit
+
+**用途：** 预加载并**立即执行**外部脚本或插入样式表
+
+**特点：**
+- 高优先级
+- 不仅下载，还会立即执行/插入
+- 适用于需要立即运行的脚本或样式
+
+**使用示例：**
+```jsx
+// 预加载并执行外部脚本
+ReactDOM.preinit('/analytics.js', {
+  as: 'script',
+  crossOrigin: 'anonymous'
+});
+
+// 预加载并插入样式表
+ReactDOM.preinit('/critical.css', {
+  as: 'style'
+});
+```
+
+**何时使用：**
+- ✅ 需要立即执行的第三方脚本
+- ✅ 关键样式表需要立即插入
+- ❌ 只需要预加载的资源（用 preload）
+
+---
+
+### 6. ReactDOM.prefetchDNS
 
 **用途：** 提前进行 DNS 解析
 
@@ -195,24 +224,19 @@ ReactDOM.preload('/fonts/inter.woff2', {
 ```
 
 ```jsx
-// ❌ 错误：使用 prefetch（低优先级，可能来不及）
-ReactDOM.prefetch('/fonts/inter.woff2', { as: 'font' });
+// ❌ 错误：不预加载，可能导致字体闪烁
+// 没有使用任何预加载 API
 ```
-### 场景 2：路由预加载
+### 场景 2：第三方资源连接
 ```jsx
-// ✅ 正确：使用 prefetch（低优先级，不阻塞当前页面）
-function NavigationLink({ to, children }) {
-  const handleMouseEnter = () => {
-    // 鼠标悬停时预取目标路由资源
-    ReactDOM.prefetch(`${to}.css`, { as: 'style' });
-    ReactDOM.prefetch(`${to}.js`, { as: 'script' });
-  };
-  
-  return <Link to={to} onMouseEnter={handleMouseEnter}>{children}</Link>;
-}
-```
-```jsx
-// ❌ 错误：使用 preload（会阻塞当前页面关键资源）
+// ✅ 正确：使用 preconnect 提前建立连接
+ReactDOM.preconnect('https://fonts.googleapis.com');
+
+// 然后使用 preload 加载字体
+ReactDOM.preload('https://fonts.gstatic.com/...', {
+  as: 'font',
+  crossOrigin: 'anonymous'
+});
 ```
 ### 场景 3：ES 模块预加载
 
@@ -235,11 +259,12 @@ ReactDOM.preinitModule('/polyfill.js', {
 │   ├─ 是 → 需要立即执行？
 │   │   ├─ 是 → 使用 preinitModule
 │   │   └─ 否 → 使用 preloadModule
-│   └─ 否 → 使用 preload
-└─ 否 → 未来可能用到？
-    ├─ 是 → 使用 prefetch
-    └─ 否 → 第三方域名？
-        └─ 是 → 使用 prefetchDNS
+│   └─ 否 → 是脚本/样式需要立即执行？
+│       ├─ 是 → 使用 preinit
+│       └─ 否 → 使用 preload
+└─ 否 → 第三方域名？
+    ├─ 需要建立连接？ → 使用 preconnect
+    └─ 只需要 DNS 解析？ → 使用 prefetchDNS
 ```
 
 ## 最佳实践
@@ -249,10 +274,10 @@ ReactDOM.preinitModule('/polyfill.js', {
 ReactDOM.preload('/critical.css', { as: 'style', fetchPriority: 'high' });
 ```
 
-2. 未来资源用 prefetch
+2. 第三方资源用 preconnect
 ```jsx
-// 鼠标悬停时预取   
-onMouseEnter={() => ReactDOM.prefetch('/next-page.js', { as: 'script' })}
+// 提前建立连接
+ReactDOM.preconnect('https://cdn.example.com');
 ```
 
 3. 第三方域名用 prefetchDNS
@@ -269,13 +294,13 @@ ReactDOM.preinitModule('/polyfill.js', { as: 'script' });
 ```
 
 ### ❌ 避免的做法
-1. 不要用 prefetch 加载关键资源
+1. 不要混淆 preload 和 preinit
 ```jsx
-  // ❌ 错误   
-  ReactDOM.prefetch('/critical-font.woff2', { as: 'font' });      
+  // ❌ 错误：只需要预加载却立即执行   
+  ReactDOM.preinit('/lazy-script.js', { as: 'script' });      
   
-  // ✅ 正确   
-  ReactDOM.preload('/critical-font.woff2', { as: 'font' });
+  // ✅ 正确：只需要预加载
+  ReactDOM.preload('/lazy-script.js', { as: 'script' });
 ```
 
 2. 不要过度使用 preload
@@ -298,29 +323,40 @@ ReactDOM.preinitModule('/polyfill.js', { as: 'script' });
 
 ## 性能影响
 
-### preload vs prefetch 的性能差异
+### preload vs preinit 的区别
 
-| 指标 | preload | prefetch |
-|------|---------|----------|
-| **下载优先级** | 高（与关键资源同级） | 低（空闲时下载） |
-| **阻塞关键资源** | 可能阻塞 | 不阻塞 |
-| **适用时机** | 当前页面必需 | 未来可能用到 |
-| **性能提升** | 显著（首屏） | 中等（后续页面） |
+| 指标 | preload | preinit |
+|------|---------|---------|
+| **下载优先级** | 高（与关键资源同级） | 高（与关键资源同级） |
+| **执行时机** | 只下载，不执行 | 下载后立即执行/插入 |
+| **适用资源** | 所有资源类型 | 脚本、样式 |
+| **性能提升** | 显著（首屏） | 显著（首屏，立即生效） |
+
+### preconnect vs prefetchDNS 的区别
+
+| 指标 | preconnect | prefetchDNS |
+|------|-----------|-------------|
+| **功能** | 建立完整连接（TCP + TLS） | 仅 DNS 解析 |
+| **开销** | 较大 | 较小 |
+| **适用场景** | 确定会使用的第三方资源 | 可能使用的第三方域名 |
+| **性能提升** | 更显著（减少连接时间） | 中等（减少 DNS 查询时间） |
 
 ## 总结
 选择合适的资源提示 API 的关键：
-1. **当前页面必需** → preload / preloadModule / preinitModule
-2. **来可能用到** → prefetch
-3. **第三方域名** → prefetchDNS
+1. **当前页面必需** → preload / preloadModule / preinitModule / preinit
+2. **第三方资源连接** → preconnect
+3. **第三方域名 DNS** → prefetchDNS
 4. **ES 模块需要立即执行** → preinitModule
 5. **ES 模块只需预加载** → preloadModule
+6. **脚本/样式需要立即执行** → preinit
 
-记住：`preload 用于当前，prefetch 用于未来。`
+记住：**preload 只下载，preinit 下载并执行**。
 
 ## 参考
 
 - [React 官方文档 - preload](https://zh-hans.react.dev/reference/react-dom/preload)
 - [React 官方文档 - preloadModule](https://zh-hans.react.dev/reference/react-dom/preloadModule)
 - [React 官方文档 - preinitModule](https://zh-hans.react.dev/reference/react-dom/preinitModule)
-- [React 官方文档 - prefetch](https://zh-hans.react.dev/reference/react-dom/prefetch)
+- [React 官方文档 - preconnect](https://zh-hans.react.dev/reference/react-dom/preconnect)
+- [React 官方文档 - preinit](https://zh-hans.react.dev/reference/react-dom/preinit)
 - [React 官方文档 - prefetchDNS](https://zh-hans.react.dev/reference/react-dom/prefetchDNS)
