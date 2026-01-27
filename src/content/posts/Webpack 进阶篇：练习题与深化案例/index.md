@@ -3,7 +3,7 @@ title: Webpack 进阶篇：练习题与深化案例
 published: 2026-01-27
 description: 'Webpack 进阶实践指南，包含模块系统、代码分割、HMR、性能优化等主题的练习题和深化案例。通过动手实践和思考题，帮助你巩固进阶知识，提升实际项目中的 Webpack 应用能力。'
 image: ''
-tags: ['webpack', '打包工具', '前端', '构建工具', '练习题', '实践案例', '性能优化']
+tags: ['webpack', '打包工具', '前端', '构建工具', '性能优化']
 category: '前端'
 draft: false 
 lang: 'zh'
