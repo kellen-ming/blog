@@ -3,7 +3,7 @@ title: typescript.json
 published: 2025-02-13
 description: 'typescript.json文件一些基础字段解释'
 image: ''
-tags: ['TypeScript']
+tags: ['typescript']
 category: 'CICD'
 draft: false 
 lang: ''

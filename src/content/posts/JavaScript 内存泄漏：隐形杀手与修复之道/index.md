@@ -3,7 +3,7 @@ title: JavaScript 内存泄漏：隐形杀手与修复之道
 published: 2025-05-06
 description: 'JavaScript 中的内存泄漏如同慢性毒药——悄无声息地侵蚀性能，最终导致应用崩溃。'
 image: './images/bg.png'
-tags: [JavaScript, 内存泄漏, 垃圾回收]
+tags: ['javascript', '内存泄漏', '垃圾回收']
 category: 'CICD'
 draft: false 
 lang: ''

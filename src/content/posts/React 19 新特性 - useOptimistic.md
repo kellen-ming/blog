@@ -3,7 +3,7 @@ title: React 19 新特性 - useOptimistic
 published: 2024-12-24
 description: 'react 19 新特性'
 image: ''
-tags: ['react hooks']
+tags: ['react-hooks']
 category: 'React'
 draft: false 
 ---

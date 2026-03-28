@@ -3,7 +3,7 @@ title: Webpack 进阶学习指南
 published: 2026-01-27
 description: 'Webpack 进阶内容深度解析，涵盖模块系统、代码分割、热更新、构建分析、Webpack 5 新特性、高级配置技巧和性能优化案例。适合已掌握 Webpack 基础知识的开发者深入学习。'
 image: ''
-tags: ['webpack', '打包工具', '前端', '构建工具', '代码分割', 'HMR', '性能优化']
+tags: ['webpack', '打包工具', '前端', '构建工具', '代码分割', '性能优化']
 category: '前端'
 draft: false 
 lang: 'zh'

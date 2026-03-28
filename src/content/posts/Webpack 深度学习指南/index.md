@@ -3,7 +3,7 @@ title: Webpack 深度学习指南
 published: 2026-01-26
 description: '系统学习 Webpack 的工作原理、核心概念和最佳实践。从工作流程、Entry、Output、Module/Loader、Plugins 到常用配置详解，帮助你深入理解 Webpack 的打包机制和优化技巧。'
 image: ''
-tags: ['webpack', '打包工具', '前端', '构建工具', 'loader', 'plugin']
+tags: ['webpack', '打包工具', '前端', '构建工具']
 category: '前端'
 draft: false 
 lang: 'zh'

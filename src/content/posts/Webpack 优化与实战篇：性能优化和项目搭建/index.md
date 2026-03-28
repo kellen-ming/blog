@@ -3,10 +3,10 @@ title: Webpack 优化与实战篇：性能优化和项目搭建
 published: 2026-01-27
 description: ''
 image: ''
-tags: []
-category: ''
+tags: ['webpack', '打包工具', '前端', '构建工具']
+category: '前端'
 draft: false 
-lang: ''
+lang: 'zh'
 ---
 
 # Webpack 优化与实战篇：性能优化和项目搭建

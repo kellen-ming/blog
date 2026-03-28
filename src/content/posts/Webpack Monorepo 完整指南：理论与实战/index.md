@@ -3,7 +3,7 @@ title: Webpack Monorepo 完整指南：理论与实战
 published: 2026-02-06
 description: '从 Monorepo 概念到实战：使用 Webpack + Yarn Workspaces + Lerna 构建和管理多包项目，包含项目结构、包依赖、共享配置、构建流程、UI 组件库案例与最佳实践。'
 image: ''
-tags: ['webpack', 'monorepo', 'yarn workspaces', 'lerna', '打包工具', '前端', '构建工具', '实战']
+tags: [ 'monorepo', 'lerna', '打包工具', '前端', '构建工具', ]
 category: '前端'
 draft: false 
 lang: 'zh'

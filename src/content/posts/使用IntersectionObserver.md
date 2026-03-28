@@ -3,7 +3,7 @@ title: 使用IntersectionObserver
 published: 2023-05-14
 description: ''
 image: ''
-tags: [js api]
+tags: ['js-api']
 category: 'JS'
 draft: false 
 lang: ''

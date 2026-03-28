@@ -14,10 +14,103 @@ const className = Astro.props.class
 </div>
 
 <script>
+  let mermaidModulePromise: Promise<any> | null = null;
+
+  function getMermaidModule() {
+    if (!mermaidModulePromise) {
+      // @ts-ignore mermaid types are not resolved in this inline script context
+      mermaidModulePromise = import("mermaid");
+    }
+    return mermaidModulePromise;
+  }
+
+  async function renderMermaidBlocks(forceRerender = false) {
+    const mermaidCodeBlocks = Array.from(
+      document.querySelectorAll(
+        'pre[data-language="mermaid"], pre > code.language-mermaid',
+      ),
+    );
+
+    const mermaid = (await getMermaidModule()).default;
+    const isDark = document.documentElement.classList.contains("dark");
+
+    mermaid.initialize({
+      startOnLoad: false,
+      securityLevel: "strict",
+      theme: "base",
+      look: "handDrawn",
+      themeVariables: {
+        fontFamily:
+          "Roboto, 'JetBrains Mono Variable', 'JetBrains Mono', system-ui, sans-serif",
+        background: "transparent",
+        primaryColor: isDark ? "#1f2937" : "#f8fafc",
+        secondaryColor: isDark ? "#243447" : "#fef3c7",
+        tertiaryColor: isDark ? "#2a2f45" : "#e0f2fe",
+        primaryTextColor: isDark ? "#e5e7eb" : "#1f2937",
+        primaryBorderColor: isDark ? "#93c5fd" : "#93c5fd",
+        lineColor: isDark ? "#c4b5fd" : "#a78bfa",
+        textColor: isDark ? "#f3f4f6" : "#374151",
+        nodeBorder: isDark ? "#c4b5fd" : "#93c5fd",
+        clusterBkg: isDark ? "#111827" : "#fdf4ff",
+        clusterBorder: isDark ? "#a5b4fc" : "#c4b5fd",
+        noteBkgColor: isDark ? "#1e293b" : "#fef9c3",
+        noteTextColor: isDark ? "#f8fafc" : "#334155",
+        actorBkg: isDark ? "#1f2937" : "#ecfeff",
+        actorBorder: isDark ? "#67e8f9" : "#7dd3fc",
+      },
+    });
+
+    for (const node of mermaidCodeBlocks) {
+      const preElement =
+        node instanceof HTMLPreElement ? node : node.closest("pre");
+      if (!preElement) continue;
+      if (preElement.dataset.mermaidRendered === "true") continue;
+
+      const mermaidSource = preElement.textContent?.trim();
+      if (!mermaidSource) continue;
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "mermaid-wrapper";
+      wrapper.dataset.mermaidRendered = "true";
+      wrapper.dataset.mermaidSource = mermaidSource;
+
+      const container = document.createElement("div");
+      container.className = "mermaid";
+      container.textContent = mermaidSource;
+      wrapper.appendChild(container);
+
+      preElement.replaceWith(wrapper);
+    }
+
+    const wrappers = Array.from(
+      document.querySelectorAll<HTMLElement>(".mermaid-wrapper"),
+    );
+    if (wrappers.length === 0) return;
+
+    if (forceRerender) {
+      for (const wrapper of wrappers) {
+        const source = wrapper.dataset.mermaidSource;
+        if (!source) continue;
+        wrapper.innerHTML = "";
+        const container = document.createElement("div");
+        container.className = "mermaid";
+        container.textContent = source;
+        wrapper.appendChild(container);
+      }
+    }
+
+    await mermaid.run({ querySelector: ".mermaid-wrapper .mermaid" });
+  }
+
   const observer = new MutationObserver(addPreCopyButton);
   observer.observe(document.body, { childList: true, subtree: true });
   
-  document.addEventListener("DOMContentLoaded", addPreCopyButton);
+  async function applyMarkdownEnhancements() {
+    await renderMermaidBlocks();
+    addPreCopyButton();
+  }
+
+  document.addEventListener("DOMContentLoaded", applyMarkdownEnhancements);
 
   function addPreCopyButton() {
     observer.disconnect();
@@ -26,6 +119,8 @@ const className = Astro.props.class
 
     for (let codeBlock of codeBlocks) {
       if (codeBlock.parentElement?.nodeName === "DIV" && codeBlock.parentElement?.classList.contains("code-block")) continue
+      if (codeBlock.dataset.language === "mermaid") continue
+      if (codeBlock.querySelector("code.language-mermaid")) continue
 
       let wrapper = document.createElement("div");
       wrapper.className = "relative code-block";
@@ -63,4 +158,50 @@ const className = Astro.props.class
     
     observer.observe(document.body, { childList: true, subtree: true });
   }
+
+  function setupSwupMermaidRerender() {
+    const rerender = () => {
+      applyMarkdownEnhancements().catch((error) => {
+        console.error("Failed to render Mermaid charts:", error);
+      });
+    };
+
+    if (window?.swup?.hooks) {
+      window.swup.hooks.on("page:view", rerender);
+    } else {
+      document.addEventListener("swup:enable", () => {
+        window.swup?.hooks?.on("page:view", rerender);
+      });
+    }
+  }
+
+  function setupThemeMermaidRerender() {
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const themeObserver = new MutationObserver(() => {
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(() => {
+        renderMermaidBlocks(true).catch((error) => {
+          console.error("Failed to re-render Mermaid charts for theme:", error);
+        });
+      }, 50);
+    });
+
+    themeObserver.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+  }
+
+  setupSwupMermaidRerender();
+  setupThemeMermaidRerender();
 </script>
+
+<style is:global>
+  .mermaid-wrapper {
+    @apply my-6 overflow-x-auto rounded-lg border border-black/10 p-3 dark:border-white/10;
+  }
+
+  .mermaid-wrapper .mermaid {
+    @apply mx-auto min-w-max;
+  }
+</style>

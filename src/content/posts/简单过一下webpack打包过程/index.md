@@ -3,7 +3,7 @@ title: 简单过一下webpack打包过程
 published: 2025-05-06
 description: ''
 image: './images/webpage-bg.webp'
-tags: [webpack]
+tags: ['webpack']
 category: 'CICD'
 draft: false 
 lang: ''

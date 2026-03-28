@@ -3,7 +3,7 @@ title: Webpack 高级应用：Plugin、Loader 和 API 详解
 published: 2026-01-27
 description: '深入讲解 Webpack 的核心扩展机制：Plugin 和 Loader 的工作原理、开发实践，以及 Webpack API 的详细用法。包含多个实战案例和最佳实践，帮助开发者掌握 Webpack 高级应用技巧。'
 image: ''
-tags: ['webpack', 'plugin', 'loader', '打包工具', '前端', '构建工具']
+tags: ['webpack', '打包工具', '前端', '构建工具']
 category: '前端'
 draft: false 
 lang: 'zh'
