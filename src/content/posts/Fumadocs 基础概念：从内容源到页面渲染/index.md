@@ -9,41 +9,23 @@ draft: false
 lang: zh-CN
 ---
 
-
 ## 导航速览
 
-- [导航速览](#导航速览)
-- [1. 简介](#1-简介)
-- [2. 整体工作链路](#2-整体工作链路)
-  - [最小可运行示例](#最小可运行示例)
-- [3. Fumadocs 的组成](#3-fumadocs-的组成)
-  - [3.1 Fumadocs Core](#31-fumadocs-core)
-  - [3.2 Fumadocs UI](#32-fumadocs-ui)
-  - [3.3 Content Source](#33-content-source)
-  - [3.4 Fumadocs CLI](#34-fumadocs-cli)
-- [4. 核心文件详解](#4-核心文件详解)
-  - [4.1 `content/docs` 与 `meta.json`](#41-contentdocs-与-metajson)
-  - [4.2 `source.config.ts`、`.source`、`lib/source.ts`](#42-sourceconfigtssourcelibsourcets)
-    - [文档内容访问链路](#文档内容访问链路)
-- [5. `app/docs/layout.tsx` 与 `app/docs/[[...slug]]/page.tsx`](#5-appdocslayouttsx-与-appdocsslugpagetsx)
-- [6. `mdx-components.tsx` 与 `examples/*`](#6-mdx-componentstsx-与-examples)
-  - [6.1 `mdx-components.tsx`](#61-mdx-componentstsx)
-  - [6.2 `examples/*`](#62-examples)
-  - [6.3 `components/docs` 与 `examples` 的区别](#63-componentsdocs-与-examples-的区别)
-- [7. 几个常见误区](#7-几个常见误区)
-- [8. 总结与复盘](#8-总结与复盘)
-- [9. 参考资料](#9-参考资料)
+1. [简介](#1-简介)
+2. [整体工作链路](#2-整体工作链路)
+3. [Fumadocs 的组成](#3-fumadocs-的组成)
+4. [核心文件详解](#4-核心文件详解)
+5. [`app/docs/layout.tsx` 与 `app/docs/[[...slug]]/page.tsx`](#5-appdocslayouttsx-与-appdocsslugpagetsx)
+6. [`mdx-components.tsx` 与 `examples/*`](#6-mdx-componentstsx-与-examples)
+7. [几个常见误区](#7-几个常见误区)
+8. [总结与复盘](#8-总结与复盘)
+9. [参考资料](#9-参考资料)
+
+---
 
 ## 1. 简介
 
-`Fumadocs` 是一个围绕 `Next.js App Router` 构建的文档系统方案。它不只是"一个文档主题"，而是从内容组织、内容索引、路由集成到页面展示的完整能力组合，通常由以下几部分构成：
-
-- `fumadocs-core`
-- `fumadocs-ui`
-- `fumadocs-mdx` 或其他内容源
-- `Next.js App Router`
-
-所以它更适合被理解成"文档系统组合方案"，而不是单一的黑盒框架。
+`Fumadocs` 是一个围绕 `Next.js App Router` 构建的文档系统方案。它不只是"一个文档主题"，而是由 `fumadocs-core`、`fumadocs-ui`、内容源（如 `fumadocs-mdx`）和 `Next.js App Router` 组合构成的完整能力组合，更适合被理解成"文档系统组合方案"，而不是单一的黑盒框架。
 
 对于刚接触 Fumadocs 的同学，最难的往往不是 API 本身，而是搞清楚：
 
@@ -55,22 +37,11 @@ lang: zh-CN
 
 这篇文章会按照实际接入链路，把这些基础概念串起来。先建立稳定的心智模型，比一开始死记 API 更重要。
 
-:::tip
-建议按「整体链路 → 核心文件职责 → 路由渲染 → 误区复盘」的顺序阅读。
-:::
 
 ---
 
 ## 2. 整体工作链路
-
-先把 Fumadocs 当成一条流水线：
-
-```
-content/docs → source.config.ts → .source → lib/source.ts → app/docs/layout.tsx
-                                                           → app/docs/[[...slug]]/page.tsx ← mdx-components.tsx ← examples/*
-```
-
-用图表示：
+用一句话来解释Fumadocs的话：`Fumadocs = 内容文件 + 内容索引 + 页面外壳 + 页面渲染`
 
 ```mermaid
 flowchart LR
@@ -91,7 +62,7 @@ flowchart LR
 4. 再把中间层包装成运行时 source（`lib/source.ts`）
 5. 最后由 Next.js 路由和页面消费
 
-### 最小可运行示例
+### 2.1 最小可运行示例
 
 如果你更习惯从代码入手，可以先看这组最小链路：
 
@@ -160,28 +131,39 @@ export default async function Page({
 
 ### 3.1 Fumadocs Core
 
-`fumadocs-core` 是"文档系统的核心引擎层"，负责底层的内容源和文档能力，包括 Source API、页面树（page tree）、TOC 基础能力和内容处理逻辑。
+`fumadocs-core` 是 Fumadocs 的 headless 库，提供服务端函数和无样式的 headless 组件，可以在 Next.js 等任意 React 框架上构建文档站。它不绑定任何 UI 样式，核心能力包括：
+
+- 文档搜索（内置 Orama、Algolia 支持）
+- Breadcrumb、Sidebar、TOC 等 headless 组件
+- Remark/Rehype 插件
+- Source API（统一处理内容源的接口）
 
 官方详解：[Fumadocs Core / Headless](https://www.fumadocs.dev/docs/headless)
 
 ### 3.2 Fumadocs UI
 
-`fumadocs-ui` 是"文档站的默认展示层"，提供默认的外观和交互组件，例如 `DocsLayout`、`DocsPage`、`Callout`、`Cards`、`Tabs`、`Files / Folder / File` 和 TOC UI。
+`fumadocs-ui` 是 Fumadocs 的默认主题，提供一套精心设计的文档站外观，内置大量交互组件和布局（如 `DocsLayout`、`DocsPage`、`Callout`、`Cards`、`Tabs`、`Files / Folder / File`、TOC UI 等），主打低维护成本、持续获得 UI 更新。
+
+如果你需要完全掌控组件样式，也可以通过 Fumadocs CLI 把组件安装到本地后自行定制。
 
 官方详解：[Fumadocs UI](https://www.fumadocs.dev/docs/ui)
 
-### 3.3 Content Source
+### 3.3 Content Source（Fumadocs MDX）
 
-Fumadocs 需要一个内容源来告诉系统"文档内容从哪里来"。常见来源包括本地 MDX、CMS、Content Collections 或其他自定义数据层。本文对应的项目使用的是 **Fumadocs MDX**，即本地 `content/docs` 目录。
+`fumadocs-mdx` 是 Fumadocs 的官方内容源，本质是一个**将内容文件转换为类型安全数据的编译/处理层**，定位类似 Content Collections，但专为 React 框架设计。
+
+它的核心概念是 **Collection**：你在 `source.config.ts` 里定义 collection，Fumadocs MDX 就会把对应目录下的 `.md` / `.mdx` 文件编译成可在应用里直接使用的类型安全数据（包含 frontmatter、TOC、结构化数据等）。
+
+Fumadocs 不强制使用 `fumadocs-mdx`，你也可以接入 CMS 或其他自定义数据层作为内容源，但本文对应的项目使用的是本地 `content/docs` 目录 + `fumadocs-mdx`。
 
 官方详解：[Fumadocs MDX](https://www.fumadocs.dev/docs/mdx)
 
 ### 3.4 Fumadocs CLI
 
-CLI 主要用于安装 UI 组件、辅助初始化和一些自动化操作，不是文档站运行的核心链路，但在搭建和扩展时很有帮助。常见用途：
+CLI 是自动化安装组件和配置的工具，不是文档站运行的核心链路，但在搭建和扩展时很有帮助。常见用途：
 
-- `add`：安装或添加文档 UI 组件
-- `customise`：帮助生成或定制布局
+- `add`：从 Fumadocs GitHub 仓库拉取最新版本的 UI 组件，安装到本地（参考了 shadcn/ui 的设计思路）
+- `customise`：快速定制 Fumadocs 布局
 - `tree`：为 `Files / Folder / File` 这类目录展示组件生成树形数据
 
 官方详解：[Fumadocs CLI](https://www.fumadocs.dev/docs/cli)
